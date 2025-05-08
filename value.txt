@@ -1,0 +1,62 @@
+Value: 
+
+  ngan: Tách số hàng ngàn  (short)
+  tram: Tách số hàng trăm   (short)	
+  chuc: Tách số hàng chục	  (short)	
+  donvi: Tách số hàng don vị (short)
+
+  Ginput:Thời gian đèn xanh nhập vào bằng UART (short)
+  Yinput:Thời gian đèn vàng nhập vào bằng UART (short)
+
+  Yellow: Thời gian vàng (short)
+  Green: thời gian đèn xanh (short)
+
+  rc:biến đổi tín hiệu của đèn đỏ (char)
+  yc:biến đổi tín hiệu của đèn vàng (char)			
+  gc:biến đổi tín hiệu của đèn xanh (char)
+ 
+  count: số chữ số của đèn (short)
+  str[]: thời gian của đèn  (short)
+
+Function: 
+
+
+target: 31/5/2023	 
+ - Xử lí lỗi nhập thời gian _ (UART_interrup) - chỉnh nhiều lần 
+ - vẽ schematic
+target: 7/6/2023
+ CHỈNH sửa code : thêm đèn   4_7seg hiển thị Light_2,4
+ schecmatic: thêm bjt - ko đủ V 
+ 
+
+
+*Học interrup, check Pin đèn và Pin interrup
+#include <xc.h>
+#define _XTAL_FREQ 20000000
+
+void delay_50ms(){
+    TMR1H = 0b00001011;
+    TMR1L = 0b11011011;
+    
+    //bat dau dem
+    T1CONbits.TMR1ON = 1;
+    
+    //buoc 2: kiemtra co tran hay khong
+    while(!TMR1IF);
+    TMR1IF = 0;
+    T1CONbits.TMR1ON = 0;// Ngung dem
+}
+
+
+void main(void) {
+    TRISC = 0x00;// set ngo ra
+    T1CONbits.TMR1CS = 0;// dem xung noi
+    T1CONbits.T1CKPS1 = 1;// prescaler 1:1
+    T1CONbits.T1CKPS0 = 0;// prescaler 1:1
+    while(1){
+        delay_50ms();
+        PORTCbits.RC0=! PORTCbits.RC0;// CHU KY 20ms => T=20ms, F=1/T=50hz
+    }
+    return;
+}
+
